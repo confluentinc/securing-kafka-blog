@@ -6,10 +6,8 @@
 # puppet module install puppetlabs-motd
 # puppet module install saz-ssh
 
-
 $packages = [
   'confluent-kafka-2.11.7',
-  'confluent-schema-registry',
   'java-1.8.0-openjdk-headless',
   'krb5-workstation',
   'krb5-server',
@@ -17,12 +15,9 @@ $packages = [
   'haveged'
 ]
 
+$ssl_port = 9093
 $sasl_port = 9095
 
-$listeners = [
-  'PLAINTEXT://:9092',
-  "SASL_PLAINTEXT://:${sasl_port}"
-]
 $kerberos_realm = upcase($::domain)
 $kerberos_master_password = 'password123'
 
@@ -32,6 +27,21 @@ $kafka_principal = "kafka/${fqdn}@${kerberos_realm}"
 $kafka_keytab = '/etc/security/keytabs/kafka.keytab'
 $kafkaclient_principal = "kafkaclient/${fqdn}@${kerberos_realm}"
 $kafkaclient_keytab = '/etc/security/keytabs/kafkaclient.keytab'
+
+$password="test1234"
+$validity="365"
+$server_keystore="/etc/security/tls/kafka.server.keystore.jks"
+$server_truststore="/etc/security/tls/kafka.server.truststore.jks"
+$client_keystore="/etc/security/tls/kafka.client.keystore.jks"
+$client_truststore="/etc/security/tls/kafka.client.truststore.jks"
+$ou=""
+$o="Confluent"
+$l="London"
+$st="London"
+$c="GB"
+$server_cn="${fqdn}"
+$client_cn="${fqdn}"
+$keytool_alias="${fqdn}"
 
 $log_dir='/var/lib/kafka'
 
@@ -163,6 +173,26 @@ exec{'create kafkaclient keytab':
   command => "kadmin.local -q 'ktadd -k ${kafkaclient_keytab} ${kafkaclient_principal}'",
   creates => $kafkaclient_keytab,
 } ->
+file{'/etc/security/tls':
+  ensure => directory,
+} ->
+exec{'generate keystores and truststores':
+  command => "keytool -genkey -noprompt -alias $keytool_alias -keypass ${password} -keystore ${server_keystore} -storepass ${password} -dname \"CN=$server_cn, OU=$ou, O=$o, L=$l, ST=$st, C=$c\" &&
+openssl req -new -x509 -keyout ca-key -out ca-cert -days $validity -passout pass:$password -subj \"/CN=$server_cn/O=$o/L=$l/ST=$st/C=$c\" &&
+keytool -keystore $server_truststore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
+keytool -keystore $client_truststore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
+keytool -keystore $server_keystore -alias $keytool_alias -certreq -file cert-file -noprompt -storepass $password &&
+openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days $validity -CAcreateserial -passin pass:$password &&
+keytool -keystore $server_keystore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
+keytool -keystore $server_keystore -alias $keytool_alias -import -file cert-signed -noprompt -storepass $password &&
+keytool -keystore $client_keystore -alias $keytool_alias -dname \"CN=$client_cn, OU=$ou, O=$o, L=$l, ST=$st, C=$c\" -validity $validity -genkey -noprompt -storepass $password -keypass $password &&
+keytool -keystore $client_keystore -alias $keytool_alias -certreq -file cert-file -noprompt -storepass $password &&
+openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days $validity -CAcreateserial -passin pass:$password &&
+keytool -keystore $client_keystore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
+keytool -keystore $client_keystore -alias $keytool_alias -import -file cert-signed -noprompt -storepass $password
+",
+  creates => $server_keystore
+} ->
 service{'krb5kdc':
   ensure => 'running',
   enable => true
@@ -218,52 +248,62 @@ file{'/etc/kafka/zookeeper_jaas.conf':
 };
 "
 } ->
-property_setting{'zookeeper.connect':
-  ensure  => present,
-  path    => '/etc/kafka/server.properties',
-  value   => "${::fqdn}:2181"
-} ->
-property_setting{'listeners':
-  ensure  => present,
-  path    => '/etc/kafka/server.properties',
-  value   => join($listeners, ',')
-} ->
-property_setting{'log.dirs':
-  ensure  => present,
-  path    => '/etc/kafka/server.properties',
-  value   => $log_dir
-} ->
-property_setting{'sasl.kerberos.service.name':
-  ensure  => present,
-  path    => '/etc/kafka/server.properties',
-  value   => 'kafka'
-} ->
-property_setting{'zookeeper.set.acl':
-  ensure  => present,
-  path    => '/etc/kafka/server.properties',
-  value   => true
-} ->
 file{$log_dir:
   ensure => directory
 } ->
-property_setting{'authProvider.1':
-  ensure  => present,
-  path    => '/etc/kafka/zookeeper.properties',
-  value   => 'org.apache.zookeeper.server.auth.SASLAuthenticationProvider'
+file{'/etc/kafka/zookeeper.properties':
+  ensure => present,
+  content => "#Managed by puppet. Save changes to a different file.
+dataDir=/var/lib/zookeeper
+clientPort=2181
+authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+requireClientAuthScheme=sasl
+jaasLoginRenew=3600000
+"
 } ->
-property_setting{'jaasLoginRenew':
-  ensure  => present,
-  path    => '/etc/kafka/zookeeper.properties',
-  value   => 3600000
-} ->
-file{'/usr/sbin/start-kerberos-kafka':
+file{'/usr/sbin/start-zk-and-kafka':
   ensure  => present,
   mode    => '0755',
-  content => "export KAFKA_HEAP_OPTS='-Xmx256M -Djava.security.auth.login.config=/etc/kafka/zookeeper_jaas.conf'
+  content => "export KAFKA_HEAP_OPTS='-Xmx256M'
+export KAFKA_OPTS='-Djava.security.auth.login.config=/etc/kafka/zookeeper_jaas.conf'
 /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties &
 sleep 5
-export KAFKA_HEAP_OPTS='-Xmx256M -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf'
+export KAFKA_OPTS='-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf'
 /usr/bin/kafka-server-start /etc/kafka/server.properties &
+"
+} ->
+file{'/etc/kafka/server.properties':
+  ensure  => present,
+  content => "#Managed by puppet. Save changes to a different file.
+broker.id=0
+listeners=SSL://:${ssl_port},SASL_SSL://:${sasl_port}
+security.inter.broker.protocol=SSL
+zookeeper.connect=${::fqdn}:2181
+log.dirs=$log_dir
+zookeeper.set.acl=true
+ssl.client.auth=required
+ssl.keystore.location=$server_keystore
+ssl.keystore.password=$password
+ssl.key.password=$password
+ssl.truststore.location=$server_truststore
+ssl.truststore.password=$password
+sasl.kerberos.service.name=kafka
+authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
+super.users=User:CN=kafka.example.com,OU=,O=Confluent,L=London,ST=London,C=GB
+"
+} ->
+
+file{'/etc/kafka/consumer_ssl.properties':
+  ensure  => present,
+  content => "#Managed by puppet. Save changes to a different file.
+bootstrap.servers=${::fqdn}:${ssl_port}
+group.id=securing-kafka-group
+security.protocol=SSL
+ssl.truststore.location=$client_truststore
+ssl.truststore.password=$password
+ssl.keystore.location=$client_keystore
+ssl.keystore.password=$password
+ssl.key.password=$password
 "
 } ->
 
@@ -271,9 +311,27 @@ file{'/etc/kafka/consumer_sasl.properties':
   ensure  => present,
   content => "#Managed by puppet. Save changes to a different file.
 bootstrap.servers=${::fqdn}:${sasl_port}
-group.id=test-consumer-group
-security.protocol=SASL_PLAINTEXT
+group.id=securing-kafka-group
+security.protocol=SASL_SSL
 sasl.kerberos.service.name=kafka
+ssl.truststore.location=$client_truststore
+ssl.truststore.password=$password
+ssl.keystore.location=$client_keystore
+ssl.keystore.password=$password
+ssl.key.password=$password
+"
+} ->
+
+file{'/etc/kafka/producer_ssl.properties':
+  ensure  => present,
+  content => "#Managed by puppet. Save changes to a different file.
+bootstrap.servers=${::fqdn}:${ssl_port}
+security.protocol=SSL
+ssl.truststore.location=$client_truststore
+ssl.truststore.password=$password
+ssl.keystore.location=$client_keystore
+ssl.keystore.password=$password
+ssl.key.password=$password
 "
 } ->
 
@@ -281,29 +339,28 @@ file{'/etc/kafka/producer_sasl.properties':
   ensure  => present,
   content => "#Managed by puppet. Save changes to a different file.
 bootstrap.servers=${::fqdn}:${sasl_port}
-security.protocol=SASL_PLAINTEXT
+security.protocol=SASL_SSL
 sasl.kerberos.service.name=kafka
+ssl.truststore.location=$client_truststore
+ssl.truststore.password=$password
+ssl.keystore.location=$client_keystore
+ssl.keystore.password=$password
+ssl.key.password=$password
 "
 } ->
 class{'::motd':
   content => "Kerberos has been configured on this hosts.
-All of the keytabs are located in /etc/security/keytabs. They are currently marked as world readable (0644). DO NOT DO THIS IN
+The keytabs are located in /etc/security/keytabs. They are currently marked as world readable (0644). DO NOT DO THIS IN
 PRODUCTION.
+
+The TLS keys and certificates are in /etc/security/tls.
 
 kafka_client_jaas.conf is a client jaas configuration file. producer_sasl.properties and consumer_sasl.properties are
 configured for kerberos. Please refer to http://docs.confluent.io/2.0.0/kafka/sasl.html#configuring-kafka-clients
 
-Console Producer:
-export KAFKA_HEAP_OPTS='-Xmx512M -Djava.security.auth.login.config=/etc/kafka/kafka_client_jaas.conf'
-
-echo \"Hello world\" | kafka-console-producer --producer.config /etc/kafka/producer_sasl.properties --broker-list '${::fqdn}:${sasl_port}' --topic foo
-
-Console Consumer:
-kafka-console-consumer --consumer.config /etc/kafka/consumer_sasl.properties --new-consumer --bootstrap-server '${::fqdn}:${sasl_port}' --topic foo --from-beginning
-
 RUN
-sudo /usr/sbin/start-kerberos-kafka
-to start zookeeper and kafka with kerberos.
+sudo /usr/sbin/start-zk-and-kafka
+to start zookeeper and kafka with security enabled.
 "
 } ->
 class{'ssh':
