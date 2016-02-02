@@ -1,9 +1,5 @@
-This vagrant configuration will install the [Confluent Platform](http://docs.confluent.io/2.0.0/installation.html) and 
-configure KDC on the local node. Kafka is configured to listen on the plantext and sasl_plaintext endpoints. To get
-started run.
+Vagrant setup based on Centos 7.2 that includes a Kerberos server, Confluent Kafka and OpenJDK 1.8.0 to make it easier to test all the pieces together. Please install [Vagrant](https://www.vagrantup.com/docs/installation/) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (if you haven’t already) and then:
 
-Make sure you have [vagrant](https://www.vagrantup.com/) installed.
-
-```bash
-vagrant up
-```
+* Clone the git repository: `git clone https://github.com/confluentinc/securing-kafka-blog`
+* Start and provision the vagrant environment: `vagrant up`
+* Connect to the VM via SSH: `vagrant ssh`
