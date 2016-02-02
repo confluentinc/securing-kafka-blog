@@ -289,7 +289,7 @@ ssl.truststore.location=$server_truststore
 ssl.truststore.password=$password
 sasl.kerberos.service.name=kafka
 authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
-super.users=User:CN=kafka.example.com,OU=,O=Confluent,L=London,ST=London,C=GB
+super.users=User:CN=$server_cn,OU=$ou,O=$o,L=$l,ST=$st,C=$c
 "
 } ->
 
