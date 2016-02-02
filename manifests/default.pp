@@ -89,6 +89,10 @@ file{'/etc/krb5.conf':
     ticket_lifetime = 24h
     forwardable = true
     udp_preference_limit = 1000000
+    # WARNING: We use weaker key types to simplify testing as stronger key types
+    # require the enhanced security JCE policy file to be installed. You should
+    # NOT run with this configuration in production or any real environment. You
+    # have been warned.
     default_tkt_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
     default_tgs_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
     permitted_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
@@ -127,6 +131,10 @@ file{'/var/kerberos/krb5kdc/kdc.conf':
         key_stash_file = /var/kerberos/krb5kdc/stash
         max_life = 10h 0m 0s
         max_renewable_life = 7d 0h 0m 0s
+        # WARNING: We use weaker key types to simplify testing as stronger key types
+        # require the enhanced security JCE policy file to be installed. You should
+        # NOT run with this configuration in production or any real environment. You
+        # have been warned.
         master_key_type = des3-hmac-sha1
         supported_enctypes = arcfour-hmac:normal des3-hmac-sha1:normal des-cbc-crc:normal des:normal des:v4 des:norealm des:onlyrealm des:afs3
         default_principal_flags = +preauth
@@ -350,13 +358,15 @@ ssl.key.password=$password
 } ->
 class{'::motd':
   content => "Kerberos has been configured on this hosts.
-The keytabs are located in /etc/security/keytabs. They are currently marked as world readable (0644). DO NOT DO THIS IN
-PRODUCTION.
+The KDC is configuring for testing and demo purposes only. Specifically, the master key is not
+sufficient for a production deployment of a KDC.
+
+The keytabs are located in /etc/security/keytabs. They are currently marked as world readable (0644).
+Do not do this in production.
 
 The TLS keys and certificates are in /etc/security/tls.
 
-kafka_client_jaas.conf is a client jaas configuration file. producer_sasl.properties and consumer_sasl.properties are
-configured for kerberos. Please refer to http://docs.confluent.io/2.0.0/kafka/sasl.html#configuring-kafka-clients
+Kafka config files are under /etc/kafka.
 
 RUN
 sudo /usr/sbin/start-zk-and-kafka
