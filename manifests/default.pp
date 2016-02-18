@@ -324,9 +324,6 @@ security.protocol=SASL_SSL
 sasl.kerberos.service.name=kafka
 ssl.truststore.location=$client_truststore
 ssl.truststore.password=$password
-ssl.keystore.location=$client_keystore
-ssl.keystore.password=$password
-ssl.key.password=$password
 "
 } ->
 
