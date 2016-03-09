@@ -30,8 +30,12 @@ $l="London"
 $st="London"
 $c="GB"
 $server_cn="${fqdn}"
+$server_ou="Broker"
 $client_cn="${fqdn}"
+$client_ou="Client"
 $keytool_alias="${fqdn}"
+$ca_cn="ca.example.com"
+$ca_ou=""
 
 $log_dir='/var/lib/kafka'
 
@@ -74,19 +78,19 @@ file{'/etc/security/tls':
   ensure => directory,
 } ->
 exec{'generate keystores and truststores':
-  command => "keytool -genkey -noprompt -alias $keytool_alias -keypass ${password} -keystore ${server_keystore} -storepass ${password} -dname \"CN=$server_cn, OU=$ou, O=$o, L=$l, ST=$st, C=$c\" &&
-openssl req -new -x509 -keyout ca-key -out ca-cert -days $validity -passout pass:$password -subj \"/CN=$server_cn/O=$o/L=$l/ST=$st/C=$c\" &&
+  command => "keytool -genkey -noprompt -alias $keytool_alias -keypass ${password} -keystore ${server_keystore} -storepass ${password} -dname \"CN=$server_cn, OU=$server_ou, O=$o, L=$l, ST=$st, C=$c\" &&
+openssl req -new -x509 -keyout ca-key -out ca-cert -days $validity -passout pass:$password -subj \"/CN=$ca_cn/O=$ca_o/L=$l/ST=$st/C=$c\" &&
 keytool -keystore $server_truststore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
 keytool -keystore $client_truststore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
-keytool -keystore $server_keystore -alias $keytool_alias -certreq -file cert-file -noprompt -storepass $password &&
-openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days $validity -CAcreateserial -passin pass:$password &&
+keytool -keystore $server_keystore -alias $keytool_alias -certreq -file server-cert-file -noprompt -storepass $password &&
+openssl x509 -req -CA ca-cert -CAkey ca-key -in server-cert-file -out server-cert-signed -days $validity -CAcreateserial -passin pass:$password &&
 keytool -keystore $server_keystore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
-keytool -keystore $server_keystore -alias $keytool_alias -import -file cert-signed -noprompt -storepass $password &&
-keytool -keystore $client_keystore -alias $keytool_alias -dname \"CN=$client_cn, OU=$ou, O=$o, L=$l, ST=$st, C=$c\" -validity $validity -genkey -noprompt -storepass $password -keypass $password &&
-keytool -keystore $client_keystore -alias $keytool_alias -certreq -file cert-file -noprompt -storepass $password &&
-openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days $validity -CAcreateserial -passin pass:$password &&
+keytool -keystore $server_keystore -alias $keytool_alias -import -file server-cert-signed -noprompt -storepass $password &&
+keytool -keystore $client_keystore -alias $keytool_alias -dname \"CN=$client_cn, OU=$client_ou, O=$o, L=$l, ST=$st, C=$c\" -validity $validity -genkey -noprompt -storepass $password -keypass $password &&
+keytool -keystore $client_keystore -alias $keytool_alias -certreq -file client-cert-file -noprompt -storepass $password &&
+openssl x509 -req -CA ca-cert -CAkey ca-key -in client-cert-file -out client-cert-signed -days $validity -CAcreateserial -passin pass:$password &&
 keytool -keystore $client_keystore -alias CARoot -import -file ca-cert -noprompt -storepass $password &&
-keytool -keystore $client_keystore -alias $keytool_alias -import -file cert-signed -noprompt -storepass $password
+keytool -keystore $client_keystore -alias $keytool_alias -import -file client-cert-signed -noprompt -storepass $password
 ",
   creates => $server_keystore
 } ->
@@ -124,7 +128,7 @@ ssl.key.password=$password
 ssl.truststore.location=$server_truststore
 ssl.truststore.password=$password
 authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
-super.users=User:CN=$server_cn,OU=$ou,O=$o,L=$l,ST=$st,C=$c
+super.users=User:CN=$server_cn,OU=$server_ou,O=$o,L=$l,ST=$st,C=$c
 "
 } ->
 
