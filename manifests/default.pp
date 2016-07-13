@@ -14,7 +14,8 @@ $packages = [
   'krb5-workstation',
   'krb5-server',
   'krb5-libs',
-  'haveged'
+  'haveged',
+  'maven'
 ]
 
 $ssl_port = 9093
