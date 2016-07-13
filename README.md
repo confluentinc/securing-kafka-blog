@@ -150,3 +150,12 @@ Security related configuration files are also found under:
 Inside the VM you can find log files in the following directories:
 
 * Kafka: `/var/log/kafka` -- notably the `server.log`
+
+
+# Useful references
+
+* [Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption),
+  Confluent blog post
+* [Kafka Security](http://docs.confluent.io/current/kafka/security.html) chapter in the
+  [Confluent Platform documentation](http://docs.confluent.io/)
+* [Kafka Security](http://kafka.apache.org/documentation.html#security) in the Apache Kafka documentation
