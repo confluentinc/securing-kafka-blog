@@ -20,7 +20,9 @@ this project provides a pre-configured virtual machine to run a secure Kafka clu
 * OpenJDK 1.8 (JDK and JRE)
 
 
-# Installation and Usage
+# Usage
+
+## Starting the VM and the secure Kafka cluster
 
 First, you must install two prerequisites on your local machine (e.g. your laptop):
 
@@ -32,6 +34,7 @@ Then you can launch the VM from your local machine:
 ```shell
 # Clone this git repository
 $ git clone https://github.com/confluentinc/securing-kafka-blog
+$ cd securing-kafka-blog
 
 # Start and provision the vagrant environment (this may take a few minutes)
 $ vagrant up
@@ -60,6 +63,9 @@ The services that will now be running inside the VM include:
 > Because the VM has no port forwarding configured (cf. [Vagrantfile](Vagrantfile)),
 > you can only access Kafka or ZooKeeper from inside the VM.
 > You cannot, however, directly access Kafka or ZooKeeper from your local machine.
+
+
+## Test-driving the secure Kafka cluster
 
 You can use the example commands in
 [Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption)
@@ -99,6 +105,16 @@ Simple example:
 # Now when you manually enter some data via the console producer,
 # then your console consumer in the other terminal will show you
 # the same data again.
+```
+
+
+## Stopping the VM
+
+Once you're done experimenting, you can stop the VM and thus the ZooKeeper and Kafka instances via:
+
+```
+# Run this command on your local machine (i.e. the host of the VM)
+$ vagrant destroy
 ```
 
 
