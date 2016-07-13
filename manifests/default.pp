@@ -9,6 +9,7 @@
 $packages = [
   'confluent-kafka-2.11',
   'java-1.8.0-openjdk-headless',
+  'java-1.8.0-openjdk-devel',
   'krb5-workstation',
   'krb5-server',
   'krb5-libs',
