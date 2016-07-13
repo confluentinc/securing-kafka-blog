@@ -36,7 +36,9 @@ Then you can launch the VM from your local machine:
 $ git clone https://github.com/confluentinc/securing-kafka-blog
 $ cd securing-kafka-blog
 
-# Start and provision the vagrant environment (this may take a few minutes)
+# Start and provision the VM (this may take a few minutes).
+# This step will boot the VM as well as install and configure
+# Kafka, ZooKeeper, Kerberos, etc.
 $ vagrant up
 
 # Connect from your local machine to the VM via SSH
