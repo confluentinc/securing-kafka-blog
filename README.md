@@ -50,11 +50,16 @@ Once you're connected to VM, the last step is to start ZooKeeper and Kafka with 
 [vagrant@kafka ~]$ sudo /usr/sbin/start-zk-and-kafka
 ```
 
-The services that will be running at this point include:
+The services that will now be running inside the VM include:
 
 * `*:9093` -- secure Kafka broker (SSL)
 * `*:9095` -- secure Kafka broker (SASL_SSL)
 * `*:2181` -- secure Zookeeper instance
+
+> **Your local machine (the host of the VM) cannot access these ports:**
+> Because the VM has no port forwarding configured (cf. [Vagrantfile](Vagrantfile)),
+> you can only access Kafka or ZooKeeper from inside the VM.
+> You cannot, however, directly access Kafka or ZooKeeper from your local machine.
 
 You can use the example commands in
 [Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption)
