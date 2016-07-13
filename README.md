@@ -1,5 +1,23 @@
 # Secure Kafka Cluster (VM for testing and development)
 
+---
+Table of Contents
+
+* [Overview](#overview)
+* [What's included in the VM](#whats-included)
+* [Usage](#usage)
+    * [Starting the VM and the secure Kafka cluster](#stop)
+    * [Test-driving the secure Kafka cluster](#test-drive)
+    * [Stopping the VM](#stop)
+* [Troubleshooting](#troubleshooting)
+    * [Configuration files](#configuration-files)
+    * [Log files](#log-files)
+* [Useful references](#references)
+
+---
+
+<a name="overview"/>
+
 # Overview
 
 Based on the instructions in the Confluent blog post
@@ -8,6 +26,8 @@ this project provides a pre-configured virtual machine to run a secure Kafka clu
 
 **This VM is intended for development and testing purposes, and is not meant for production use.**
 
+
+<a name="whats-included"/>
 
 # What's included in the VM
 
@@ -20,7 +40,11 @@ this project provides a pre-configured virtual machine to run a secure Kafka clu
 * OpenJDK 1.8 (JDK and JRE)
 
 
+<a name="usage"/>
+
 # Usage
+
+<a name="start"/>
 
 ## Starting the VM and the secure Kafka cluster
 
@@ -65,6 +89,8 @@ The services that will now be running inside the VM include:
 > you can only access Kafka or ZooKeeper from inside the VM.
 > You cannot, however, directly access Kafka or ZooKeeper from your local machine.
 
+
+<a name="test-drive"/>
 
 ## Test-driving the secure Kafka cluster
 
@@ -117,6 +143,8 @@ against the secure Kafka cluster in this VM:
   how it can be run against the secure Kafka cluster in this VM
 
 
+<a name="stop"/>
+
 ## Stopping the VM
 
 Once you're done experimenting, you can stop the VM and thus the ZooKeeper and Kafka instances via:
@@ -127,7 +155,11 @@ $ vagrant destroy
 ```
 
 
+<a name="troubleshooting"/>
+
 # Troubleshooting
+
+<a name="configuration-files"/>
 
 ## Configuration files
 
@@ -145,12 +177,16 @@ Security related configuration files are also found under:
 * `/etc/krb5.conf`
 
 
+<a name="log-files"/>
+
 ## Log files
 
 Inside the VM you can find log files in the following directories:
 
 * Kafka: `/var/log/kafka` -- notably the `server.log`
 
+
+<a name="references"/>
 
 # Useful references
 
