@@ -40,17 +40,16 @@ $ cd securing-kafka-blog
 # This step will boot the VM as well as install and configure
 # Kafka, ZooKeeper, Kerberos, etc.
 $ vagrant up
+```
 
+Once the VM is provisioned, the last step is to start ZooKeeper and Kafka with security enabled:
+
+```shell
 # Connect from your local machine to the VM via SSH
-$ vagrant ssh
+$ vagrant ssh default
 
 # You will see the following prompt if you're sucessfully connected to the VM
 [vagrant@kafka ~]$
-```
-
-Once you're connected to VM, the last step is to start ZooKeeper and Kafka with security enabled:
-
-```shell
 # Start secure ZooKeeper and secure Kafka
 [vagrant@kafka ~]$ sudo /usr/sbin/start-zk-and-kafka
 ```
@@ -78,6 +77,7 @@ Simple example:
 ```shell
 #
 # The following commands assume that you're connected to the VM!
+# Run `vagrant ssh default` on your local machine if you are not connected yet.
 #
 
 # Create the Kafka topic `securing-kafka`
