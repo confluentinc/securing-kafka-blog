@@ -109,6 +109,13 @@ Simple example:
 # the same data again.
 ```
 
+Another example is to run a secure [Kafka Streams](http://docs.confluent.io/current/streams/index.html) application
+against the secure Kafka cluster in this VM:
+
+* [SecureKafkaStreamsExample](https://github.com/confluentinc/examples/blob/kafka-0.10.0.0-cp-3.0.0/kafka-streams/src/main/java/io/confluent/examples/streams/SecureKafkaStreamsExample.java)
+  demonstrate how to write a secure stream processing application;  the example includes step-by-step instructions on
+  how it can be run against the secure Kafka cluster in this VM
+
 
 ## Stopping the VM
 
