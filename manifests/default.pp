@@ -7,12 +7,15 @@
 # puppet module install saz-ssh
 
 $packages = [
-  'confluent-kafka-2.11.7',
+  'confluent-kafka-2.11',
+  'git',
   'java-1.8.0-openjdk-headless',
+  'java-1.8.0-openjdk-devel',
   'krb5-workstation',
   'krb5-server',
   'krb5-libs',
-  'haveged'
+  'haveged',
+  'maven'
 ]
 
 $ssl_port = 9093
@@ -68,10 +71,10 @@ service{'firewall':
 }
 yumrepo{'confluent':
   ensure   => 'present',
-  descr    => 'Confluent repository for 2.0.x packages',
-  baseurl  => 'http://packages.confluent.io/rpm/2.0',
+  descr    => 'Confluent repository for 3.0.x packages',
+  baseurl  => 'http://packages.confluent.io/rpm/3.0',
   gpgcheck => 1,
-  gpgkey   => 'http://packages.confluent.io/rpm/2.0/archive.key',
+  gpgkey   => 'http://packages.confluent.io/rpm/3.0/archive.key',
 } ->
 package{$packages:
   ensure => 'installed'
