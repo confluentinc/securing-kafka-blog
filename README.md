@@ -6,7 +6,7 @@ Table of Contents
 * [Overview](#overview)
 * [What's included in the VM](#whats-included)
 * [Usage](#usage)
-    * [Starting the VM and the secure Kafka cluster](#stop)
+    * [Starting the VM and the secure Kafka cluster](#start)
     * [Test-driving the secure Kafka cluster](#test-drive)
     * [Stopping the VM](#stop)
 * [Troubleshooting](#troubleshooting)
