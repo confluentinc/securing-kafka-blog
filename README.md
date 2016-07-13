@@ -112,7 +112,7 @@ Simple example:
 
 Once you're done experimenting, you can stop the VM and thus the ZooKeeper and Kafka instances via:
 
-```
+```shell
 # Run this command on your local machine (i.e. the host of the VM)
 $ vagrant destroy
 ```
