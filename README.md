@@ -1,9 +1,12 @@
-# Secure Kafka Cluster
+# Secure Kafka Cluster (VM for testing and development)
 
 # Overview
 
-This project provides a pre-configured virtual machine to run a secure Kafka cluster using the Confluent Platform.
-This VM is not intended for development and testing purposes, and is not meant for production use.
+Based on the instructions in the Confluent blog post
+[Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption),
+this project provides a pre-configured virtual machine to run a secure Kafka cluster using the Confluent Platform.
+
+**This VM is not intended for development and testing purposes, and is not meant for production use.**
 
 
 # What's included in the VM
@@ -15,10 +18,6 @@ This VM is not intended for development and testing purposes, and is not meant f
     * Including Apache ZooKeeper v3.4.x
 * Kerberos 5 server v1.x
 * OpenJDK 1.8 (JDK and JRE)
-
-The security-related configuration of Apache Kafka and Apache ZooKeeper inside the VM is based on the instructions in
-the Confluent blog post
-[Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption).
 
 
 # Installation and Usage
@@ -32,7 +31,7 @@ Then you can launch the VM from your local machine:
 
 ```shell
 # Clone this git repository
-$ git clone https://github.com/confluentinc/securing-kafka-blog`
+$ git clone https://github.com/confluentinc/securing-kafka-blog
 
 # Start and provision the vagrant environment (this may take a few minutes)
 $ vagrant up
