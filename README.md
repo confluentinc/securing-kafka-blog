@@ -42,7 +42,7 @@ $ cd securing-kafka-blog
 $ vagrant up
 ```
 
-Once the VM is provisioned, the last step is to start ZooKeeper and Kafka with security enabled:
+Once the VM is provisioned, the last step is to log into the VM and start ZooKeeper and Kafka with security enabled:
 
 ```shell
 # Connect from your local machine to the VM via SSH
