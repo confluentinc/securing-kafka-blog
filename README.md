@@ -6,7 +6,7 @@ Based on the instructions in the Confluent blog post
 [Apache Kafka Security 101](http://www.confluent.io/blog/apache-kafka-security-authorization-authentication-encryption),
 this project provides a pre-configured virtual machine to run a secure Kafka cluster using the Confluent Platform.
 
-**This VM is not intended for development and testing purposes, and is not meant for production use.**
+**This VM is intended for development and testing purposes, and is not meant for production use.**
 
 
 # What's included in the VM
