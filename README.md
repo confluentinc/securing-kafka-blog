@@ -85,7 +85,7 @@ The services that will now be running inside the VM include:
 * `*:2181` -- secure Zookeeper instance
 
 > **Your local machine (the host of the VM) cannot access these ports:**
-> Because the VM has no port forwarding configured (cf. [Vagrantfile](Vagrantfile)),
+> Because the VM has no port forwarding configured yet (cf. [Vagrantfile](Vagrantfile)),
 > you can only access Kafka or ZooKeeper from inside the VM.
 > You cannot, however, directly access Kafka or ZooKeeper from your local machine.
 
